@@ -1,12 +1,13 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View, type ViewStyle } from 'react-native'
 
 interface Props {
-  children: string
+  children: JSX.Element
+  style?: ViewStyle
 }
 
-const CircleButton = ({ children }: Props): JSX.Element => {
+const CircleButton = ({ children, style }: Props): JSX.Element => {
   return (
-    <View style={styles.circleButton}>
+    <View style={[styles.circleButton, style]}>
       <Text style={styles.circleButtonLabel}>{children}</Text>
     </View>
   )
