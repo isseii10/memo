@@ -2,13 +2,21 @@ import { StyleSheet, View } from 'react-native'
 import MemoListItem from '../../components/MemoListItem'
 import CircleButton from '../../components/CircleButton'
 import { Feather } from '@expo/vector-icons'
-import { router } from 'expo-router'
+import { router, useNavigation } from 'expo-router'
+import { useEffect } from 'react'
+import LogoutButton from '../../components/LogoutButton'
 
 const handlePress = (): void => {
   router.push('/memo/create')
 }
 
 const List = (): JSX.Element => {
+  const navigation = useNavigation()
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => { return <LogoutButton /> }
+    })
+  }, [])
   return (
     <View style={styles.container}>
       <View>

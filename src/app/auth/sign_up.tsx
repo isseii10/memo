@@ -4,7 +4,8 @@ import { Link, router } from 'expo-router'
 
 const handlePress = (): void => {
   // 会員登録
-  router.push('/memo/list')
+  // replaceはstack navigationに積まない
+  router.replace('/memo/list')
 }
 
 const SignUp = (): JSX.Element => {
