@@ -2,7 +2,11 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native'
 import { Feather } from '@expo/vector-icons'
 import Header from '../../components/Header'
 import CircleButton from '../../components/CircleButton'
+import { router } from 'expo-router'
 
+const handlePress = (): void => {
+  router.push('/memo/edit')
+}
 const Detail = (): JSX.Element => {
   return (
     <View style={styles.container}>
@@ -27,7 +31,7 @@ const Detail = (): JSX.Element => {
           aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
         </Text>
       </ScrollView>
-      <CircleButton style={{ top: 160, bottom: 'auto' }}>
+      <CircleButton onPress={handlePress} style={{ top: 160, bottom: 'auto' }}>
         <Feather name='edit-2' size={25} />
       </CircleButton>
     </View>
