@@ -1,19 +1,52 @@
-import { KeyboardAvoidingView, StyleSheet, TextInput, View } from 'react-native'
+import { Alert, KeyboardAvoidingView, StyleSheet, TextInput, View } from 'react-native'
 import CircleButton from '../../components/CircleButton'
 import { Feather } from '@expo/vector-icons'
-import { router } from 'expo-router'
+import { router, useLocalSearchParams } from 'expo-router'
+import { useEffect, useState } from 'react'
+import { auth, db } from '../../config'
+import { Timestamp, doc, getDoc, setDoc } from 'firebase/firestore'
 
-const handlePress = (): void => {
-  router.back()
+const handlePress = (id: string, bodyText: string): void => {
+  if (auth.currentUser === null) { return }
+  const ref = doc(db, `users/${auth.currentUser?.uid}/memos`, id)
+  setDoc(ref, {
+    bodyText,
+    updatedAt: Timestamp.fromDate(new Date())
+  })
+    .then(() => {
+      router.back()
+    })
+    .catch((error) => {
+      console.log(error)
+      Alert.alert('更新に失敗しました')
+    })
 }
 
 const Edit = (): JSX.Element => {
+  const id = String(useLocalSearchParams().id)
+  const [bodyText, setBodyText] = useState<string>('')
+  useEffect(() => {
+    if (auth.currentUser === null) { return }
+    const ref = doc(db, `users/${auth.currentUser?.uid}/memos`, id)
+    getDoc(ref)
+      .then((docRef) => {
+        const remoteBodyText = String(docRef?.data()?.bodyText)
+        setBodyText(remoteBodyText)
+      })
+      .catch((error) => { console.log(error) })
+  }, [])
+
   return (
     <KeyboardAvoidingView behavior='height' style={styles.container}>
       <View style={styles.inputContainer}>
-        <TextInput multiline style={styles.input} value={'買い物\nリスト'} />
+        <TextInput
+          multiline
+          style={styles.input}
+          value={bodyText}
+          onChangeText={(text) => { setBodyText(text) }}
+        />
       </View>
-      <CircleButton onPress={handlePress}>
+      <CircleButton onPress={() => { handlePress(id, bodyText) }}>
         < Feather name='check' size={40} />
       </CircleButton>
 
@@ -26,12 +59,12 @@ const styles = StyleSheet.create({
     flex: 1
   },
   inputContainer: {
-    paddingVertical: 32,
-    paddingHorizontal: 27,
     flex: 1
   },
   input: {
     flex: 1,
+    paddingVertical: 32,
+    paddingHorizontal: 27,
     textAlignVertical: 'top',
     lineHeight: 24,
     fontSize: 16

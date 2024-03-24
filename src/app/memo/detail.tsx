@@ -1,35 +1,44 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native'
 import { Feather } from '@expo/vector-icons'
 import CircleButton from '../../components/CircleButton'
-import { router } from 'expo-router'
+import { router, useLocalSearchParams } from 'expo-router'
+import { type Memo } from '../../types/memo'
+import { useEffect, useState } from 'react'
+import { auth, db } from '../../config'
+import { doc, onSnapshot } from 'firebase/firestore'
 
-const handlePress = (): void => {
-  router.push('/memo/edit')
+const handlePress = (id: string): void => {
+  router.push({ pathname: '/memo/edit', params: { id } })
 }
 const Detail = (): JSX.Element => {
+  const id = String(useLocalSearchParams().id)
+  const [memo, setMemo] = useState<Memo | null>(null)
+  useEffect(() => {
+    if (auth.currentUser === null) { return }
+    const ref = doc(db, `users/${auth.currentUser.uid}/memos`, id)
+    const unsubscribe = onSnapshot(ref, (memoDoc) => {
+      console.log(memoDoc.data())
+      const { bodyText, updatedAt } = memoDoc.data() as Memo
+      setMemo({
+        id: memoDoc.id,
+        bodyText,
+        updatedAt
+      })
+    })
+    return unsubscribe
+  }, [])
   return (
     <View style={styles.container}>
       <View style={styles.memoHeader}>
-        <Text style={styles.memoTitle}>買い物リスト</Text>
-        <Text style={styles.memoDate}>2024-01-01 01:00</Text>
+        <Text numberOfLines={1} style={styles.memoTitle}>{memo?.bodyText}</Text>
+        <Text style={styles.memoDate}>{memo?.updatedAt?.toDate().toLocaleString('ja-JP')}</Text>
       </View>
       <ScrollView style={styles.memoBody}>
         <Text style={styles.memoBodyText}>
-          卵
-          卵
-          牛乳
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          {memo?.bodyText}
         </Text>
       </ScrollView>
-      <CircleButton onPress={handlePress} style={{ top: 60, bottom: 'auto' }}>
+      <CircleButton onPress={() => { handlePress(id) }} style={{ top: 60, bottom: 'auto' }}>
         <Feather name='edit-2' size={25} />
       </CircleButton>
     </View>
@@ -61,11 +70,11 @@ const styles = StyleSheet.create({
     lineHeight: 12
   },
   memoBody: {
-    paddingVertical: 32,
     paddingHorizontal: 27
 
   },
   memoBodyText: {
+    paddingVertical: 32,
     fontSize: 16,
     lineHeight: 24,
     color: '#000000'

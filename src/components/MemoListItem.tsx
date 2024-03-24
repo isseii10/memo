@@ -1,14 +1,21 @@
 import { AntDesign } from '@expo/vector-icons'
 import { Link } from 'expo-router'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { type Memo } from '../types/memo'
 
-const MemoListItem = (): JSX.Element => {
+interface Props {
+  memo: Memo
+}
+const MemoListItem = ({ memo }: Props): JSX.Element | null => {
+  const { bodyText, updatedAt } = memo
+  if (bodyText === null || updatedAt === null) { return null }
+  const dateString = updatedAt.toDate().toLocaleString('ja-JP')
   return (
-    <Link href='/memo/detail' asChild>
+    <Link href={{ pathname: '/memo/detail', params: { id: memo.id } }} asChild >
       <TouchableOpacity style={styles.memoListItem}>
         <View>
-          <Text style={styles.memoListItemTitle}>買い物リスト</Text>
-          <Text style={styles.memoListItemDate}>2024-01-01 01:00</Text>
+          <Text numberOfLines={1} style={styles.memoListItemTitle}>{bodyText}</Text>
+          <Text style={styles.memoListItemDate}>{dateString}</Text>
         </View>
         <TouchableOpacity>
           <AntDesign name='closecircleo' color='#B0B0B0' />
