@@ -1,12 +1,23 @@
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import Button from '../../components/Button'
 import { Link, router } from 'expo-router'
 import { useState } from 'react'
+import { signInWithEmailAndPassword } from 'firebase/auth'
+import { auth } from '../../config'
 
-const handlePress = (): void => {
+const handlePress = (email: string, password: string): void => {
   // login
-  // replaceはstack navigationに積まない
-  router.replace('/memo/list')
+  signInWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+      console.log(userCredential.user.uid)
+      // replaceはstack navigationに積まない -> backボタンがなくなる
+      router.replace('/memo/list')
+    })
+    .catch((error) => {
+      const { code, message } = error
+      console.log(code, message)
+      Alert.alert(message)
+    })
 }
 
 const Login = (): JSX.Element => {
@@ -34,10 +45,10 @@ const Login = (): JSX.Element => {
           placeholder='password'
           textContentType='password' // keyChainなどに保存していたら使える
         />
-        <Button label='Submit' onPress={handlePress} />
+        <Button label='Submit' onPress={() => { handlePress(email, password) }} />
         <View style={styles.footer}>
           <Text style={styles.footerText}>Not registered?</Text>
-          <Link href='/auth/sign_up' asChild >
+          <Link href='/auth/sign_up' asChild replace >
             <TouchableOpacity>
               <Text style={styles.footerLink}>Sign up here!</Text>
             </TouchableOpacity>
