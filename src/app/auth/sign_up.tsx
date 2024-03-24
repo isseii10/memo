@@ -19,7 +19,6 @@ const handlePress = (email: string, password: string): void => {
       // eslint-disable-next-line
       Alert.alert(message)
     })
-  console.log(email, password)
 }
 
 const SignUp = (): JSX.Element => {

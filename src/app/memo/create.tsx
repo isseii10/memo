@@ -14,8 +14,7 @@ const handlePress = (bodyText: string): void => {
     bodyText, // keyとvalueの変数名が同じなら省略できる
     updatedAt: Timestamp.fromDate(new Date())
   })
-    .then((docRef) => {
-      console.log('success', docRef.id)
+    .then(() => {
       router.back()
     })
     .catch((error) => {
