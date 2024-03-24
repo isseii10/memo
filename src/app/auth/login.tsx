@@ -16,6 +16,7 @@ const handlePress = (email: string, password: string): void => {
     .catch((error) => {
       const { code, message } = error
       console.log(code, message)
+      // eslint-disable-next-line
       Alert.alert(message)
     })
 }
